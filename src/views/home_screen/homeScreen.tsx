@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   FlatList,
   ImageBackground,
@@ -26,23 +26,89 @@ import ProductItem from '../components/productItem';
 
 import { ProductModel } from '../../models/product.model';
 import { apiData } from '../../apis/data';
-
+import { API_BASE_URL } from '../../configs';
+import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../stores/configureStore';
+import { fetchCart } from '../../stores/reducers/cartReducer';
 
 
 const HomeScreen = ({ navigation }: { navigation: any }) => {
-  const products: ProductModel[] = [];
 
-  apiData.forEach(data => {
-    const product: ProductModel = {
-      id: data.id,
-      title: data.title,
-      image: data.image,
-      star: data.star,
-      price: data.price,
-      discount: data.discount,
-    };
-    products.push(product);
-  });
+
+  const [newProducts, setNewProducts] = useState<ProductModel[]>([]);
+  const [saleProducts, setSaleProducts] = useState<ProductModel[]>([]);
+  const [recommendProducts, setRecommendProducts] = useState<ProductModel[]>([]);
+
+  const dispatch = useDispatch()
+
+  const tokenState = useSelector((state: RootState) => state.personalLogin);
+
+  const fetchAllData = () => {
+    axios.get(`${API_BASE_URL}/home/cart/show`, {
+      headers: {
+        'x-auth-token': tokenState.token
+      }
+    }).then((rs) => {
+      dispatch(fetchCart({ carts: rs.data.carts }))
+    }).catch((err) => {
+      console.log(err.data)
+    })
+  }
+  useEffect(() => { fetchAllData() }, [])
+
+  const fetchNewProduct = () => {
+    axios.get(`${API_BASE_URL}/home/index/new-products`).then((rs) => {
+      const products = rs.data.products.map((data: any) => ({
+        id: data._id,
+        name: data.name,
+        photos: data.photos,
+        price: data.price,
+        sale: data.sale,
+        star: data.star
+      }));
+      setNewProducts(products);
+    })
+  }
+
+  const fetchSaleProduct = () => {
+    axios.get(`${API_BASE_URL}/home/index/sale-products`).then((rs) => {
+      const products = rs.data.products.map((data: any) => ({
+        id: data._id,
+        name: data.name,
+        photos: data.photos,
+        price: data.price,
+        sale: data.sale,
+        star: data.star
+      }));
+      setSaleProducts(products);
+    })
+  }
+
+  const fetchRecommendProduct = () => {
+    axios.get(`${API_BASE_URL}/home/index/recommend-product`).then((rs) => {
+      const products = rs.data.products.map((data: any) => ({
+        id: data._id,
+        name: data.name,
+        photos: data.photos,
+        price: data.price,
+        sale: data.sale,
+        star: data.star
+      }));
+      setRecommendProducts(products);
+    })
+  }
+
+  useEffect(() => {
+    fetchNewProduct()
+    fetchSaleProduct()
+    fetchRecommendProduct()
+  }, [])
+
+
+
+
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -52,7 +118,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
           <View style={styles.element}>
             <BannerComponent data={{ title: "Super Flash Sale 50% Off", time: "12:00:10" }} />
           </View>
-          <View style={[styles.element, { marginTop: kDefaultPadding * 1.6 }]}>
+          {/* <View style={[styles.element, { marginTop: kDefaultPadding * 1.6 }]}>
             <HeadingComponent
               data={{
                 title: "Category",
@@ -99,18 +165,18 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
               }} />
 
             </ScrollView>
-          </View>
-          <View style={styles.element}>
+          </View> */}
+          <View style={[styles.element, { marginTop: kDefaultPadding * 1.6 }]}>
             <HeadingComponent
               data={{
-                title: "Flash Sale",
+                title: "New Product",
                 text: "See More",
                 onPress: () => { }
               }}
             />
 
             <FlatList
-              data={products}
+              data={newProducts}
               horizontal={true}
               overScrollMode="never"
               style={{ paddingVertical: 12 }}
@@ -131,9 +197,9 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
               overScrollMode="never"
               style={{ paddingVertical: 12 }}
               showsHorizontalScrollIndicator={false}
-              data={products}
+              data={saleProducts}
               renderItem={({ item }) => <SaleProductItem data={item} />}
-              keyExtractor={item => item.id} />
+              keyExtractor={(item) => item.id} />
           </View>
           <View
             style={[
@@ -163,10 +229,12 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
               </ImageBackground>
             </View>
             <View style={styles.recommend}>
-              {products.map(item => (
+              {recommendProducts.map((item, index) => (
                 <ProductItem
-                  onPress={() => navigation.navigate(SCREENS.DetailScreen, { itemId: 123 })}
-                  key={item.id}
+                  onPress={
+                    () => navigation.navigate(SCREENS.DetailScreen,
+                      { itemId: item.id })}
+                  key={index}
                   data={item} />
               ))}
             </View>
@@ -211,6 +279,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    alignSelf: 'stretch'
   },
 });
 

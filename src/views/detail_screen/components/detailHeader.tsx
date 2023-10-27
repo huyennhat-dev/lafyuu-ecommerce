@@ -11,9 +11,11 @@ import { COLORS, SCREENS, TEXT_TYPES, kDefaultPadding } from '../../../helpers/c
 import TextComponent from '../../components/textComponent';
 import { ProductModel } from '../../../models/product.model';
 import DotComponent from '../../components/dotComponent';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../stores/configureStore';
 
-const DetailHeader = ({ navigation }: { navigation: any }) => {
-    const carts:ProductModel[] = [];
+const DetailHeader = ({ navigation,title }: { navigation: any ,title:string}) => {
+    const cartState = useSelector((state: RootState) => state.personalCart);
     return (
         <View style={styles.body}>
             <Pressable onPress={() => navigation.goBack()} >
@@ -26,7 +28,7 @@ const DetailHeader = ({ navigation }: { navigation: any }) => {
                     type: TEXT_TYPES.heading4,
                     maxLine: 1,
                     style: { color: COLORS.textSecondaryColor },
-                    text: "Nike Air Max 270 React nike adidas"
+                    text: title
                 }} />
             </View>
             <View style={styles.iconBtn}>
@@ -40,7 +42,7 @@ const DetailHeader = ({ navigation }: { navigation: any }) => {
                         <SyS_CartIcon width={25} height={25} stroke={COLORS.defaultColor} />
                     } />
                 </Pressable>
-               <DotComponent value={carts.length}/>
+               <DotComponent value={cartState.carts.length}/>
             </View>
         </View>
     );

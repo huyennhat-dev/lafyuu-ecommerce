@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Pressable, SafeAreaView, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native'
 import { RouteProp, useRoute } from '@react-navigation/native';
 import HTML from 'react-native-render-html';
@@ -14,6 +14,12 @@ import HeadingComponent from '../home_screen/components/headingComponent';
 import ButtonComponent from '../components/buttonComponent';
 import ReviewComponent from '../components/reviewComponent';
 import DetailRecommend from './components/detailRecommend';
+import axios from 'axios';
+import { API_BASE_URL } from '../../configs';
+import { ProductModel } from '../../models/product.model';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../stores/configureStore';
+import { addProductToCart } from '../../stores/reducers/cartReducer';
 
 const images = [
     'https://github.com/leecade/react-native-swiper/blob/master/examples/components/Swiper/img/1.jpg?raw=true',
@@ -22,40 +28,8 @@ const images = [
     'https://github.com/leecade/react-native-swiper/blob/master/examples/components/Swiper/img/4.jpg?raw=true'
 ]
 
-const htmlContent = `
-<p>This is <strong>HTML</strong> content.</p>
-<img
-  width="1200" height="800"
-  style=" align-self: center;"
-  src="https://i.ytimg.com/vi/WcRO16RdKyc/maxresdefault.jpg"
-/>
-<table class="custom-table">
-  <tr>
-    <th>Header 1</th>
-    <th>Header 2</th>
-  </tr>
-  <tr>
-    <td>Row 1, Cell 1</td>
-    <td>Row 1, Cell 2</td>
-  </tr>
-  <tr>
-    <td>Row 2, Cell 1</td>
-    <td>Row 2, Cell 2</td>
-  </tr>
-</table>
-<p>More text here...</p>
-`;
 
-const customStyles = {
-    customTable: {
-        border: '1px solid #000',
-        borderCollapse: 'collapse',
-    },
-    customTableCell: {
-        border: '1px solid #000',
-        padding: '8px',
-    },
-};
+
 
 type RootStackParamList = {
     DetailScreen: { itemId: number };
@@ -63,24 +37,68 @@ type RootStackParamList = {
 
 type DetailScreenRouteProp = RouteProp<RootStackParamList, 'DetailScreen'>;
 const DetailScreen = ({ navigation }: { navigation: any }) => {
+    const dispatch = useDispatch()
     const route = useRoute<DetailScreenRouteProp>();
+    const tokenState = useSelector((state: RootState) => state.personalLogin);
+
     const { itemId } = route.params;
 
+    const [product, setProduct] = useState<ProductModel>();
+
     const [quantity, setQuantity] = useState(1)
+
+    const fetchProductData = () => {
+        try {
+            axios.get(`${API_BASE_URL}/home/product/${itemId}`).then((rs) => {
+                const pro: ProductModel = {
+                    id: rs.data.product._id,
+                    name: rs.data.product.name,
+                    photos: rs.data.product.photos,
+                    price: rs.data.product.price,
+                    sale: rs.data.product.sale,
+                    star: rs.data.product.star,
+                    description: rs.data.product.description,
+                    rates: rs.data.product.rates
+                }
+                setProduct(pro)
+            })
+        } catch (error) {
+
+        }
+    }
+    useEffect(() => { fetchProductData() }, [])
+
+    const addToCart = () => {
+
+        dispatch(addProductToCart({ product: product!, quantity: quantity }))
+
+        axios.post(
+            `${API_BASE_URL}/home/cart/create`,
+            { id: itemId, quantity: quantity },
+            { headers: { 'x-auth-token': tokenState.token } }
+        )
+            .then((rs) => {
+                console.log('rs:', rs.data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+
+    }
 
     const { width } = useWindowDimensions();
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView overScrollMode="never" showsVerticalScrollIndicator={false}>
-                <DetailHeader navigation={navigation} />
-                <DetailSlider images={images} />
+                <DetailHeader navigation={navigation} title={product?.name!} />
+                <DetailSlider images={product?.photos! ?? ["https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg"]} />
                 <View style={styles.body}>
                     <View style={styles.title}>
                         <View style={{ flex: 1 }}>
                             <TextComponent data={{
                                 type: TEXT_TYPES.heading3,
                                 style: { color: COLORS.textSecondaryColor },
-                                text: "Nike Air Zoom Pegasus 36 Miami"
+                                text: product?.name!
                             }} />
                         </View>
                         <Pressable onPress={() => { }} style={{ marginLeft: 8 }}>
@@ -89,7 +107,7 @@ const DetailScreen = ({ navigation }: { navigation: any }) => {
 
                     </View>
                     <View style={styles.rating}>
-                        <RatingBar data={{ press: false, star: 4, size: 16 }} />
+                        <RatingBar data={{ press: false, star: product?.star ?? 0, size: 16 }} />
                         <TextComponent
                             data={{
                                 type: TEXT_TYPES.normalTextR,
@@ -97,12 +115,12 @@ const DetailScreen = ({ navigation }: { navigation: any }) => {
                                     marginLeft: 8,
                                     color: COLORS.textPrimaryColor
                                 },
-                                text: '(4/5) 356 review'
+                                text: `(${product?.star!}/5) ${product?.rates?.length! ?? 0} review`
                             }} />
                     </View>
                     <View style={styles.price}>
                         <TextComponent data={{
-                            type: TEXT_TYPES.heading3, text: `$ ${100 - (0.24 * 100)}`,
+                            type: TEXT_TYPES.heading3, text: `$ ${(product?.price! - (product?.sale! * product?.price!)).toFixed(0)}`,
                             style: {
                                 color: COLORS.primaryColor,
                                 marginRight: 8
@@ -116,12 +134,12 @@ const DetailScreen = ({ navigation }: { navigation: any }) => {
                                     textDecorationLine: 'line-through',
                                     marginRight: 8
                                 },
-                                text: '$' + `${100}`
+                                text: `${product?.price!}` + ' đ'
                             }} />
                         <TextComponent
                             data={{
                                 type: TEXT_TYPES.heading5,
-                                text: `${0.24 * 100}% Off`,
+                                text: `${product?.sale! * 100}% Off`,
                                 style: { color: COLORS.dangerColor }
                             }} />
                     </View>
@@ -134,7 +152,7 @@ const DetailScreen = ({ navigation }: { navigation: any }) => {
                         <QuantityComponent quantity={quantity} setQuantity={setQuantity} />
                     </View>
                     <View style={styles.button}>
-                        <ButtonComponent data={{ onPress: () => { }, title: "Add to cart" }} />
+                        <ButtonComponent data={{ onPress: addToCart, title: "Add to cart" }} />
                     </View>
                     <View style={styles.descriptionBody}>
                         <TextComponent data={{
@@ -144,10 +162,11 @@ const DetailScreen = ({ navigation }: { navigation: any }) => {
                         }} />
                         <HTML
                             contentWidth={width - 32}
-                            source={{ html: htmlContent }}
+                            source={{ html: product?.description! ?? "" }}
                             baseStyle={styles.description}
                         />
                     </View>
+
                     <View style={styles.reviewProduct}>
                         <HeadingComponent data={{
                             onPress: () => { },
@@ -168,9 +187,7 @@ const DetailScreen = ({ navigation }: { navigation: any }) => {
                             }} />
                         ))}
                     </View>
-                    <View>
-                        <DetailRecommend />
-                    </View>
+
                 </View>
             </ScrollView>
         </SafeAreaView >
@@ -216,15 +233,15 @@ const styles = StyleSheet.create({
 
     },
     description: {
-        fontSize: 12,
+        fontSize: 13,
         letterSpacing: 0.5,
-        lineHeight: 12 * 1.8,
+        lineHeight: 13 * 1.8,
         fontFamily: 'Poppins-Regular',
         color: COLORS.textPrimaryColor,
     },
     reviewProduct: {
         flex: 1,
-
+        marginTop: 16
     }
 })
 

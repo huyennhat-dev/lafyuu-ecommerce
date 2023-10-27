@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -24,13 +25,19 @@ import DetailScreen from '../views/detail_screen/detailScreen';
 import { ProductModel } from '../models/product.model';
 import TextComponent from '../views/components/textComponent';
 import DotComponent from '../views/components/dotComponent';
-
-const carts: ProductModel[] = [];
+import jwtDecode, { JwtPayload } from "jwt-decode";
+import { useDispatch, useSelector } from 'react-redux';
+import { setToken } from '../stores/reducers/loginReducer';
+import { RootState } from '../stores/configureStore';
+import axios from 'axios';
+import { API_BASE_URL } from '../configs';
+import { setInfo } from '../stores/reducers/infoReducer';
+import { fetchCart } from '../stores/reducers/cartReducer';
 
 const Tab = createBottomTabNavigator();
 
 const BottomTab = () => {
-
+  const cartState = useSelector((state: RootState) => state.personalCart);
   return (
     <Tab.Navigator
       initialRouteName={SCREENS.HomeScreen}
@@ -82,7 +89,7 @@ const BottomTab = () => {
                 stroke={focused ? COLORS.primaryColor : COLORS.textPrimaryColor}
               />
 
-              <DotComponent value={carts.length} />
+              <DotComponent value={cartState.carts.length} />
             </View>
           ),
         }}
@@ -117,17 +124,66 @@ const BottomTab = () => {
   );
 };
 
+
+
 const Stack = createNativeStackNavigator();
 
 const Navigation = () => {
+  const dispatch = useDispatch();
+  const tokenState = useSelector((state: RootState) => state.personalLogin);
+
+
+  const fetchInfo = (token: string) => {
+    axios.get(`${API_BASE_URL}/home/auth/get-info`, {
+      headers:
+      {
+        'x-auth-token': token
+      }
+    }).then(async (rs) => {
+      await dispatch(setInfo({
+        name: rs.data.user.name || "",
+        email: rs.data.user.email || "",
+        phone: rs.data.user.phone || "",
+        photo: rs.data.user.photo || "",
+        address: rs.data.user.address || "",
+      }));
+      return rs.data
+    })
+  }
+
+  const initState = async () => {
+    try {
+      const token = await AsyncStorage.getItem('TOKEN');
+      if (token) {
+        const decodedToken: JwtPayload = jwtDecode(token!);
+
+        const tokenExpiration = decodedToken.exp ?? 0;
+        const currentTimestamp: number = Date.now();
+        if (tokenExpiration > currentTimestamp) {
+          await dispatch(setToken(token));
+          await fetchInfo(token);
+
+        }
+      }
+    } catch (error) {
+      console.log("====>" + error);
+    }
+  };
+
+  useEffect(() => {
+    initState()
+  }, []);
+
+
+
   return (
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{ headerShown: false }}
-        initialRouteName={SCREENS.LoginScreen}>
+        initialRouteName={tokenState.token ? "HomeTab" : SCREENS.LoginScreen}>
         <Stack.Screen name={SCREENS.LoginScreen} component={LoginScreen} />
         <Stack.Screen
-          // options={{headerShown: true}}
+          options={{ headerShown: true }}
           name={SCREENS.RegisterScreen}
           component={RegisterScreen}
         />

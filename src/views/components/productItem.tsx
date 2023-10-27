@@ -21,7 +21,7 @@ if (screenWidth >= SCREEN_WIDTH.desktop) {
   itemWidth = (screenWidth - 3 * (kDefaultPadding * 1.6)) / 2;
 }
 const ProductItem = ({ data, onPress }: { data: ProductModel, onPress: () => void }) => {
-  const { image, title, discount, price, star } = data;
+  const { photos, name, sale, price, star } = data;
 
   return (
     <View style={styles.container}>
@@ -31,7 +31,7 @@ const ProductItem = ({ data, onPress }: { data: ProductModel, onPress: () => voi
             <View>
               <Image
                 style={[styles.image, styles.mb8]}
-                source={{ uri: image }}
+                source={{ uri: `${photos![0]}` }}
                 resizeMode="cover"
               />
               <View style={[styles.mb5]}>
@@ -39,7 +39,7 @@ const ProductItem = ({ data, onPress }: { data: ProductModel, onPress: () => voi
                   data={{
                     maxLine: 2,
                     type: TEXT_TYPES.heading6,
-                    text: title, style: {
+                    text: name, style: {
                       color: COLORS.textSecondaryColor
                     }
                   }} />
@@ -49,7 +49,7 @@ const ProductItem = ({ data, onPress }: { data: ProductModel, onPress: () => voi
           <View style={styles.mb8}>
             <RatingBar
               data={{
-                star: star,
+                star: star||0,
                 size: 12,
                 press: false,
               }}
@@ -59,7 +59,7 @@ const ProductItem = ({ data, onPress }: { data: ProductModel, onPress: () => voi
             <TextComponent data={{
               maxLine: 2,
               type: TEXT_TYPES.smallLink,
-              text: '$' + ` ${(price - price * discount).toFixed(2)}`
+              text: ` ${(price! - price! * sale!).toFixed(0)}` + ' đ'
             }} />
           </View>
 
@@ -69,12 +69,12 @@ const ProductItem = ({ data, onPress }: { data: ProductModel, onPress: () => voi
                 maxLine: 2,
                 type: TEXT_TYPES.smallCaptionR,
                 style: { textDecorationLine: 'line-through', marginRight: 7 },
-                text: '$' + `${price}`
+                text: `${price}` + ' đ'
               }} />
             <TextComponent
               data={{
                 type: TEXT_TYPES.smallCaptionB,
-                text: `${discount * 100}% Off`,
+                text: `${(sale! * 100).toFixed(0)}% Off`,
                 style: { color: COLORS.dangerColor }
               }} />
           </View>
@@ -110,6 +110,8 @@ const styles = StyleSheet.create({
     width: itemWidth - 2 * (kDefaultPadding * 1.6),
     height: itemWidth - 2 * (kDefaultPadding * 1.6),
     borderRadius: 5,
+    borderColor: COLORS.borderColor,
+    borderWidth: 1
   },
   mb8: {
     marginBottom: 8,

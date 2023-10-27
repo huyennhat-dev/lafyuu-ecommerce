@@ -1,12 +1,12 @@
 import React from 'react'
 import { View, StyleSheet, Image, Pressable } from 'react-native'
-import { CartModel } from '../../../models/cart.model'
+import { CartItem, CartModel } from '../../../models/cart.model'
 import { COLORS, TEXT_TYPES, kDefaultPadding } from '../../../helpers/constants'
 import TextComponent from '../../components/textComponent'
 import IconButtonComponent from '../../components/iconButtonComponent'
 import { SyS16_MinusIcon, SyS16_PlusIcon, SyS_TrashIcon } from '../../../helpers/icons'
 
-const CartItem = ({ item }: { item: any/** CartModel */ }) => {
+const CartItemComponent = ({ item }: { item: CartItem }) => {
 
   const decrease = () => {
   };
@@ -14,15 +14,15 @@ const CartItem = ({ item }: { item: any/** CartModel */ }) => {
   const increase = () => {
   };
 
-  const { id, title, image, price, discount, quantity } = item
+  const { product, quantity } = item
   return (
     <View style={styles.container}>
-      <Image style={styles.image} source={{ uri: image }} resizeMode='cover' borderRadius={5} />
+      <Image style={styles.image} source={{ uri: product.photos![0] }} resizeMode='cover' borderRadius={5} />
       <View style={styles.body}>
         <View style={styles.header}>
           <View style={{ flex: 1 }}>
             <TextComponent data={{
-              text: title,
+              text: product.name!,
               maxLine: 2,
               type: TEXT_TYPES.heading5,
               style: { color: COLORS.textSecondaryColor, marginRight: 8 }
@@ -32,10 +32,10 @@ const CartItem = ({ item }: { item: any/** CartModel */ }) => {
             <IconButtonComponent icon={(<SyS_TrashIcon width={25} height={25} stroke={COLORS.defaultColor} />)} />
           </Pressable>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View>
             <TextComponent data={{
-              type: TEXT_TYPES.heading5, text: `$ ${(price - (price * discount)).toFixed(2)}`,
+              type: TEXT_TYPES.heading5, text: `${(product.price! - (product.price! * product.sale!)).toFixed(0)} đ`,
               style: { color: COLORS.primaryColor }
             }} />
           </View>
@@ -108,4 +108,4 @@ const styles = StyleSheet.create({
 
 })
 
-export default CartItem
+export default CartItemComponent

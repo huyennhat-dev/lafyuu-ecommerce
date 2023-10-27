@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -18,6 +18,7 @@ import {
 
 import InputComponent from '../components/inputComponent';
 import ButtonComponent from '../components/buttonComponent';
+import { useDispatch, useSelector } from 'react-redux';
 
 import {
   Other_FacebookIcon,
@@ -26,16 +27,65 @@ import {
   SyS_PasswordIcon,
 } from '../../helpers/icons';
 import TextComponent from '../components/textComponent';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { API_BASE_URL } from '../../configs';
+import { setToken } from '../../stores/reducers/loginReducer';
+import jwtDecode, { JwtPayload } from 'jwt-decode';
 
 const size = Dimensions.get('screen');
 
 const LoginScreen = ({ navigation }: { navigation: any }) => {
-  const handleEmailChange = (val: string) => {
-    console.log('Email Value:', val);
-  };
-  const handlePasswordChange = (val: string) => {
-    console.log('Password Value:', val);
-  };
+  const dispatch = useDispatch();
+  // const token = useSelector((state: RootState) => state.personalLogin);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const handleLogin = async () => {
+    try {
+      axios.post(`${API_BASE_URL}/home/auth/login`, {
+        email, password
+      }).then(async (res) => {
+        console.log('success')
+        const data = res.data
+        if (data.success) {
+          await AsyncStorage.setItem('TOKEN', data.token)
+          await dispatch(setToken(data.token));
+
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'HomeTab' }],
+          });
+        }
+      }).catch((err) => {
+        console.log(err)
+      })
+    } catch (error) {
+    }
+  }
+
+  const isLogged = async () => {
+    const token = await AsyncStorage.getItem("TOKEN")
+    if (token) {
+      const decodedToken: JwtPayload = jwtDecode(token!);
+
+      const tokenExpiration = decodedToken.exp ?? 0;
+      const currentTimestamp: number = Date.now();
+      if (tokenExpiration > currentTimestamp) {
+        return true;
+      }
+    }
+    return false
+  }
+
+  useEffect(() => {
+    isLogged().then((rs) => {
+      if (rs) navigation.reset({
+        index: 0,
+        routes: [{ name: 'HomeTab' }],
+      });
+    })
+
+  }, [])
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
@@ -60,7 +110,7 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
               <InputComponent
                 type="email"
                 placeholder="Your Email"
-                onTextChange={handleEmailChange}>
+                onTextChange={(val: string) => setEmail(val)}>
                 <SyS_MessageIcon width={25} height={25} />
               </InputComponent>
             </View>
@@ -68,7 +118,7 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
               <InputComponent
                 type={INPUT_TYPE.password}
                 placeholder="Password"
-                onTextChange={handlePasswordChange}>
+                onTextChange={(val: string) => setPassword(val)}>
                 <SyS_PasswordIcon width={25} height={25} />
               </InputComponent>
             </View>
@@ -76,7 +126,7 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
               <ButtonComponent
                 data={{
                   title: "Sign In",
-                  onPress: () => navigation.push('HomeTab')
+                  onPress: handleLogin
                 }}
               />
             </View>

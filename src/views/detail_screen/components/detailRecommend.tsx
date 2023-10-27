@@ -19,11 +19,11 @@ const DetailRecommend = () => {
           onPress={() => { }}
           data={{
             id: item.id,
-            image: item.image,
-            discount: item.discount,
+            photos: ['https://github.com/leecade/react-native-swiper/blob/master/examples/components/Swiper/img/1.jpg?raw=true'],
+            sale: item.discount,
             price: item.price,
             star: item.star,
-            title: item.title
+            name: item.title
           }}
         />)}
       </ScrollView>

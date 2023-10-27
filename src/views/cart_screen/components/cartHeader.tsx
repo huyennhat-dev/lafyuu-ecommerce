@@ -4,6 +4,7 @@ import TextComponent from '../../components/textComponent'
 import { COLORS, TEXT_TYPES, kDefaultPadding } from '../../../helpers/constants'
 
 const CartHeader = ({ totalItem }: { totalItem: number }) => {
+
     return (
         <View style={styles.body}>
             <TextComponent data={{

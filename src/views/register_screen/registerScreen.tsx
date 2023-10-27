@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, SafeAreaView, ScrollView, StyleSheet, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   COLORS,
   INPUT_TYPE,
+  SCREENS,
   TEXT_TYPES,
   kDefaultPadding,
 } from '../../helpers/constants';
@@ -15,14 +17,42 @@ import {
   SyS_UserIcon,
 } from '../../helpers/icons';
 import TextComponent from '../components/textComponent';
+import axios from 'axios';
+import { setToken } from '../../stores/reducers/loginReducer';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+// import { RootState } from '../../stores/configureStore';
+import { API_BASE_URL } from '../../configs';
 
 const RegisterScreen = ({ navigation }: { navigation: any }) => {
-  const handleEmailChange = (val: string) => {
-    console.log('Email Value:', val);
-  };
-  const handlePasswordChange = (val: string) => {
-    console.log('Password Value:', val);
-  };
+  const dispatch = useDispatch();
+  // const token = useSelector((state: RootState) => state.personalLogin);
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+
+  const handleRegister = async () => {
+    try {
+      axios.post(`${API_BASE_URL}/home/auth/register`, {
+        name, email, password
+      }).then(async (res) => {
+        console.log('success')
+        const data = res.data
+        if (data.success) {
+          await AsyncStorage.setItem('TOKEN', data.token)
+          await dispatch(setToken(data.token));
+
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'HomeTab' }],
+          });
+        }
+      }).catch((err) => {
+        console.log(err)
+      })
+    } catch (error) {
+    }
+  }
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
@@ -45,15 +75,15 @@ const RegisterScreen = ({ navigation }: { navigation: any }) => {
               <InputComponent
                 type={INPUT_TYPE.person}
                 placeholder="Full Name"
-                onTextChange={handleEmailChange}>
-                <SyS_UserIcon width={25} height={25} />
+                onTextChange={(val: string) => setName(val)}>
+                <SyS_UserIcon width={25} height={25} fill={COLORS.defaultColor} />
               </InputComponent>
             </View>
             <View style={styles.marginBottom}>
               <InputComponent
                 type={INPUT_TYPE.email}
                 placeholder="Your Email"
-                onTextChange={handleEmailChange}>
+                onTextChange={(val: string) => setEmail(val)}>
                 <SyS_MessageIcon width={25} height={25} />
               </InputComponent>
             </View>
@@ -61,7 +91,7 @@ const RegisterScreen = ({ navigation }: { navigation: any }) => {
               <InputComponent
                 type={INPUT_TYPE.password}
                 placeholder="Password"
-                onTextChange={handlePasswordChange}>
+                onTextChange={(val: string) => setPassword(val)}>
                 <SyS_PasswordIcon width={25} height={25} />
               </InputComponent>
             </View>
@@ -69,12 +99,12 @@ const RegisterScreen = ({ navigation }: { navigation: any }) => {
               <InputComponent
                 type={INPUT_TYPE.password}
                 placeholder="Password Again"
-                onTextChange={handlePasswordChange}>
+                onTextChange={(val: string) => setPassword(val)}>
                 <SyS_PasswordIcon width={25} height={25} />
               </InputComponent>
             </View>
             <View style={styles.marginTop}>
-              <ButtonComponent data={{ title: "Sign Up", onPress: () => { } }} />
+              <ButtonComponent data={{ title: "Sign Up", onPress: handleRegister }} />
             </View>
           </View>
           <View >

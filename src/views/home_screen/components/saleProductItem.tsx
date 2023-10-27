@@ -5,7 +5,7 @@ import TextComponent from '../../components/textComponent';
 import { ProductModel } from '../../../models/product.model';
 
 const SaleProductItem = ({ data }: { data: ProductModel }) => {
-  const { image, title, discount, price } = data;
+  const { photos, name, sale, price } = data;
 
   return (
     <View style={styles.container}>
@@ -14,7 +14,7 @@ const SaleProductItem = ({ data }: { data: ProductModel }) => {
           <View>
             <Image
               style={[styles.image, styles.mb8]}
-              source={{ uri: image }}
+              source={{ uri: `${photos![0]}` }}
               resizeMode="cover"
             />
             <View style={[styles.mb8]}>
@@ -22,7 +22,7 @@ const SaleProductItem = ({ data }: { data: ProductModel }) => {
                 data={{
                   maxLine: 2,
                   type: TEXT_TYPES.heading6,
-                  text: title, style: {
+                  text: name, style: {
                     color: COLORS.textSecondaryColor
                   }
                 }} />
@@ -33,7 +33,7 @@ const SaleProductItem = ({ data }: { data: ProductModel }) => {
           <TextComponent data={{
             maxLine: 2,
             type: TEXT_TYPES.smallLink,
-            text: '$' + ` ${(price - price * discount).toFixed(2)}`
+            text: ` ${(price! - price! * sale!).toFixed(0)}` + ' đ'
           }} />
         </View>
         <View style={[styles.mb8, { flexDirection: 'row' }]}>
@@ -42,13 +42,13 @@ const SaleProductItem = ({ data }: { data: ProductModel }) => {
               maxLine: 2,
               type: TEXT_TYPES.smallCaptionR,
               style: { textDecorationLine: 'line-through', marginRight: 7 },
-              text: '$' + `${price}`
+              text: `${price}` + ' đ'
             }} />
           <TextComponent
             data={{
               type: TEXT_TYPES.smallCaptionB,
-              text: `${discount * 100}% Off`,
-              style:{color:COLORS.dangerColor}
+              text: `${sale! * 100}% Off`,
+              style: { color: COLORS.dangerColor }
             }} />
         </View>
       </View>
@@ -77,6 +77,8 @@ const styles = StyleSheet.create({
     width: 141 - 2 * (kDefaultPadding * 1.6),
     height: 141 - 2 * (kDefaultPadding * 1.6),
     borderRadius: 5,
+    borderColor: COLORS.borderColor,
+    borderWidth: 1
   },
   mb8: {
     marginBottom: 8,
