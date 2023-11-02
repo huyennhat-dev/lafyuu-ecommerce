@@ -18,14 +18,13 @@ import {
 } from '../../helpers/icons';
 import TextComponent from '../components/textComponent';
 import axios from 'axios';
-import { setToken } from '../../stores/reducers/loginReducer';
+import { login } from '../../stores/reducers/loginReducer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 // import { RootState } from '../../stores/configureStore';
 import { API_BASE_URL } from '../../configs';
 
 const RegisterScreen = ({ navigation }: { navigation: any }) => {
   const dispatch = useDispatch();
-  // const token = useSelector((state: RootState) => state.personalLogin);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -40,7 +39,7 @@ const RegisterScreen = ({ navigation }: { navigation: any }) => {
         const data = res.data
         if (data.success) {
           await AsyncStorage.setItem('TOKEN', data.token)
-          await dispatch(setToken(data.token));
+          await dispatch(login({ logged: true, token: data.token }));
 
           navigation.reset({
             index: 0,

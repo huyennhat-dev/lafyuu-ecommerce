@@ -3,16 +3,17 @@ import { Image, StyleSheet, View, Pressable } from 'react-native';
 import { COLORS, TEXT_TYPES, kDefaultPadding } from '../../../helpers/constants';
 import TextComponent from '../../components/textComponent';
 import { ProductModel } from '../../../models/product.model';
+import FastImage from 'react-native-fast-image';
 
-const SaleProductItem = ({ data }: { data: ProductModel }) => {
+const SaleProductItem = ({ data,onPress }: { data: ProductModel,onPress:()=>void }) => {
   const { photos, name, sale, price } = data;
 
   return (
     <View style={styles.container}>
       <View style={styles.body}>
-        <Pressable onPress={() => { }}>
+        <Pressable onPress={onPress}>
           <View>
-            <Image
+            <FastImage
               style={[styles.image, styles.mb8]}
               source={{ uri: `${photos![0]}` }}
               resizeMode="cover"
@@ -36,6 +37,7 @@ const SaleProductItem = ({ data }: { data: ProductModel }) => {
             text: ` ${(price! - price! * sale!).toFixed(0)}` + ' đ'
           }} />
         </View>
+        {sale ? (
         <View style={[styles.mb8, { flexDirection: 'row' }]}>
           <TextComponent
             data={{
@@ -51,6 +53,7 @@ const SaleProductItem = ({ data }: { data: ProductModel }) => {
               style: { color: COLORS.dangerColor }
             }} />
         </View>
+        ):null}
       </View>
     </View>
   );

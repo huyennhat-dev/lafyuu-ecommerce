@@ -3,7 +3,7 @@ import { Pressable, SafeAreaView, ScrollView, StyleSheet, View, useWindowDimensi
 import { RouteProp, useRoute } from '@react-navigation/native';
 import HTML from 'react-native-render-html';
 import TextComponent from '../components/textComponent'
-import { COLORS, TEXT_TYPES, kDefaultPadding } from '../../helpers/constants'
+import { COLORS, SCREENS, TEXT_TYPES, kDefaultPadding } from '../../helpers/constants'
 import DetailHeader from './components/detailHeader';
 import DetailSlider from './components/detailSlider';
 import RatingBar from '../components/ratingBar';
@@ -39,7 +39,7 @@ type DetailScreenRouteProp = RouteProp<RootStackParamList, 'DetailScreen'>;
 const DetailScreen = ({ navigation }: { navigation: any }) => {
     const dispatch = useDispatch()
     const route = useRoute<DetailScreenRouteProp>();
-    const tokenState = useSelector((state: RootState) => state.personalLogin);
+    const loginState = useSelector((state: RootState) => state.personalLogin);
 
     const { itemId } = route.params;
 
@@ -70,12 +70,20 @@ const DetailScreen = ({ navigation }: { navigation: any }) => {
 
     const addToCart = () => {
 
-        dispatch(addProductToCart({ product: product!, quantity: quantity }))
+        if (!loginState.logged) {
+            navigation.navigate(SCREENS.LoginScreen);
+            return
+        }
+        dispatch(addProductToCart({
+            product: product!,
+            quantity: quantity,
+            price: (product?.price! - product?.price! * product?.sale!) * quantity
+        }))
 
         axios.post(
             `${API_BASE_URL}/home/cart/create`,
             { id: itemId, quantity: quantity },
-            { headers: { 'x-auth-token': tokenState.token } }
+            { headers: { 'x-auth-token': loginState.token } }
         )
             .then((rs) => {
                 console.log('rs:', rs.data);

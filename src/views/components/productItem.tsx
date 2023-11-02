@@ -9,6 +9,7 @@ import {
 import TextComponent from './textComponent';
 import RatingBar from './ratingBar';
 import { ProductModel } from '../../models/product.model';
+import FastImage from 'react-native-fast-image';
 
 const screenWidth = Dimensions.get('screen').width;
 let itemWidth;
@@ -29,7 +30,7 @@ const ProductItem = ({ data, onPress }: { data: ProductModel, onPress: () => voi
         <View style={styles.body}>
           <Pressable onPress={onPress}>
             <View>
-              <Image
+              <FastImage
                 style={[styles.image, styles.mb8]}
                 source={{ uri: `${photos![0]}` }}
                 resizeMode="cover"
@@ -49,7 +50,7 @@ const ProductItem = ({ data, onPress }: { data: ProductModel, onPress: () => voi
           <View style={styles.mb8}>
             <RatingBar
               data={{
-                star: star||0,
+                star: star || 0,
                 size: 12,
                 press: false,
               }}
@@ -58,26 +59,29 @@ const ProductItem = ({ data, onPress }: { data: ProductModel, onPress: () => voi
           <View style={[styles.mb5]}>
             <TextComponent data={{
               maxLine: 2,
-              type: TEXT_TYPES.smallLink,
+              type: TEXT_TYPES.mediumTextB,
+              style: { color: COLORS.primaryColor },
               text: ` ${(price! - price! * sale!).toFixed(0)}` + ' đ'
             }} />
           </View>
 
-          <View style={[styles.mb5, { flexDirection: 'row' }]}>
-            <TextComponent
-              data={{
-                maxLine: 2,
-                type: TEXT_TYPES.smallCaptionR,
-                style: { textDecorationLine: 'line-through', marginRight: 7 },
-                text: `${price}` + ' đ'
-              }} />
-            <TextComponent
-              data={{
-                type: TEXT_TYPES.smallCaptionB,
-                text: `${(sale! * 100).toFixed(0)}% Off`,
-                style: { color: COLORS.dangerColor }
-              }} />
-          </View>
+          {sale ? (
+            <View style={[styles.mb5, { flexDirection: 'row' }]}>
+              <TextComponent
+                data={{
+                  maxLine: 2,
+                  type: TEXT_TYPES.smallCaptionR,
+                  style: { textDecorationLine: 'line-through', marginRight: 7 },
+                  text: `${price}` + ' đ'
+                }} />
+              <TextComponent
+                data={{
+                  type: TEXT_TYPES.smallCaptionB,
+                  text: `${(sale! * 100).toFixed(0)}% Off`,
+                  style: { color: COLORS.dangerColor }
+                }} />
+            </View>
+          ) : null}
         </View>
       </View>
     </View>

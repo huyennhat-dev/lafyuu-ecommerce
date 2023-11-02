@@ -30,7 +30,7 @@ import TextComponent from '../components/textComponent';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { API_BASE_URL } from '../../configs';
-import { setToken } from '../../stores/reducers/loginReducer';
+import { login } from '../../stores/reducers/loginReducer';
 import jwtDecode, { JwtPayload } from 'jwt-decode';
 
 const size = Dimensions.get('screen');
@@ -49,7 +49,7 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
         const data = res.data
         if (data.success) {
           await AsyncStorage.setItem('TOKEN', data.token)
-          await dispatch(setToken(data.token));
+          await dispatch(login({ logged: true, token: data.token }));
 
           navigation.reset({
             index: 0,
@@ -63,7 +63,7 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
     }
   }
 
-  const isLogged = async () => {
+  const checkLogin = async () => {
     const token = await AsyncStorage.getItem("TOKEN")
     if (token) {
       const decodedToken: JwtPayload = jwtDecode(token!);
@@ -71,6 +71,8 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
       const tokenExpiration = decodedToken.exp ?? 0;
       const currentTimestamp: number = Date.now();
       if (tokenExpiration > currentTimestamp) {
+        await dispatch(login({ logged: true, token: token }));
+
         return true;
       }
     }
@@ -78,7 +80,7 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
   }
 
   useEffect(() => {
-    isLogged().then((rs) => {
+    checkLogin().then((rs) => {
       if (rs) navigation.reset({
         index: 0,
         routes: [{ name: 'HomeTab' }],

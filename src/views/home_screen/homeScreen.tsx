@@ -44,18 +44,6 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 
   const tokenState = useSelector((state: RootState) => state.personalLogin);
 
-  const fetchAllData = () => {
-    axios.get(`${API_BASE_URL}/home/cart/show`, {
-      headers: {
-        'x-auth-token': tokenState.token
-      }
-    }).then((rs) => {
-      dispatch(fetchCart({ carts: rs.data.carts }))
-    }).catch((err) => {
-      console.log(err.data)
-    })
-  }
-  useEffect(() => { fetchAllData() }, [])
 
   const fetchNewProduct = () => {
     axios.get(`${API_BASE_URL}/home/index/new-products`).then((rs) => {
@@ -104,9 +92,6 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
     fetchSaleProduct()
     fetchRecommendProduct()
   }, [])
-
-
-
 
 
 
@@ -181,7 +166,11 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
               overScrollMode="never"
               style={{ paddingVertical: 12 }}
               showsHorizontalScrollIndicator={false}
-              renderItem={({ item }) => <SaleProductItem data={item} />}
+              renderItem={({ item }) => <SaleProductItem
+                data={item}
+                onPress={
+                  () => navigation.navigate(SCREENS.DetailScreen,
+                    { itemId: item.id })} />}
               keyExtractor={item => item.id} />
           </View>
           <View style={styles.element}>
@@ -198,7 +187,12 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
               style={{ paddingVertical: 12 }}
               showsHorizontalScrollIndicator={false}
               data={saleProducts}
-              renderItem={({ item }) => <SaleProductItem data={item} />}
+              renderItem={({ item }) => <SaleProductItem
+                data={item}
+                onPress={
+                  () => navigation.navigate(SCREENS.DetailScreen,
+                    { itemId: item.id })}
+              />}
               keyExtractor={(item) => item.id} />
           </View>
           <View

@@ -1,23 +1,66 @@
-import React from 'react'
-import { View, StyleSheet, Image, Pressable } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { View, StyleSheet, Image, Pressable, Alert } from 'react-native'
 import { CartItem, CartModel } from '../../../models/cart.model'
 import { COLORS, TEXT_TYPES, kDefaultPadding } from '../../../helpers/constants'
 import TextComponent from '../../components/textComponent'
 import IconButtonComponent from '../../components/iconButtonComponent'
 import { SyS16_MinusIcon, SyS16_PlusIcon, SyS_TrashIcon } from '../../../helpers/icons'
+import FastImage from 'react-native-fast-image'
+import { useDispatch } from 'react-redux'
+import { decreaseAmount, increaseAmount, delProductFromCart } from '../../../stores/reducers/cartReducer'
 
-const CartItemComponent = ({ item }: { item: CartItem }) => {
+type Props = {
+  item: CartItem,
+}
+
+const CartItemComponent = ({ item }: Props) => {
+  const { product, quantity, price } = item
+  const dispatch = useDispatch()
+  const [amount, setAmount] = useState(quantity)
+
 
   const decrease = () => {
+    if (amount <= 1) {
+      deleteItem()
+      return
+    }
+    setAmount(amount - 1);
+    dispatch(decreaseAmount(item))
   };
+
+  useEffect(() => {
+    setAmount(quantity);
+  }, [quantity]);
 
   const increase = () => {
+    setAmount(amount + 1);
+    dispatch(increaseAmount(item))
+
   };
 
-  const { product, quantity } = item
+  const deleteItem = () => {
+    Alert.alert(
+      'Confirm',
+      'Do you want to remove from cart?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: () => {
+            dispatch(delProductFromCart(item))
+
+          },
+        },
+      ]
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <Image style={styles.image} source={{ uri: product.photos![0] }} resizeMode='cover' borderRadius={5} />
+      <FastImage style={styles.image} source={{ uri: product.photos![0] }} resizeMode='cover' />
       <View style={styles.body}>
         <View style={styles.header}>
           <View style={{ flex: 1 }}>
@@ -28,14 +71,14 @@ const CartItemComponent = ({ item }: { item: CartItem }) => {
               style: { color: COLORS.textSecondaryColor, marginRight: 8 }
             }} />
           </View>
-          <Pressable onPress={() => { }}>
+          <Pressable onPress={deleteItem}>
             <IconButtonComponent icon={(<SyS_TrashIcon width={25} height={25} stroke={COLORS.defaultColor} />)} />
           </Pressable>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View>
             <TextComponent data={{
-              type: TEXT_TYPES.heading5, text: `${(product.price! - (product.price! * product.sale!)).toFixed(0)} đ`,
+              type: TEXT_TYPES.heading5, text: `${((product.price! - product.price! * product.sale!)*amount || 0).toFixed(0)} đ`,
               style: { color: COLORS.primaryColor }
             }} />
           </View>
@@ -49,7 +92,7 @@ const CartItemComponent = ({ item }: { item: CartItem }) => {
             <View style={styles.quantityValue}>
               <TextComponent data={{
                 type: TEXT_TYPES.heading5,
-                text: `${quantity || 1}`,
+                text: `${amount || 1}`,
                 style: { color: COLORS.textPrimaryColor }
               }} />
             </View>
@@ -81,6 +124,7 @@ const styles = StyleSheet.create({
     height: 72,
     width: 72,
     marginRight: 16,
+    borderRadius: 5
   },
   header: {
     flexDirection: 'row',

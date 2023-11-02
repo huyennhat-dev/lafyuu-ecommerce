@@ -27,17 +27,106 @@ import TextComponent from '../views/components/textComponent';
 import DotComponent from '../views/components/dotComponent';
 import jwtDecode, { JwtPayload } from "jwt-decode";
 import { useDispatch, useSelector } from 'react-redux';
-import { setToken } from '../stores/reducers/loginReducer';
+import { login } from '../stores/reducers/loginReducer';
 import { RootState } from '../stores/configureStore';
 import axios from 'axios';
 import { API_BASE_URL } from '../configs';
 import { setInfo } from '../stores/reducers/infoReducer';
 import { fetchCart } from '../stores/reducers/cartReducer';
+import { CartItem, CartModel } from 'src/models/cart.model';
 
 const Tab = createBottomTabNavigator();
 
 const BottomTab = () => {
-  const cartState = useSelector((state: RootState) => state.personalCart);
+
+  const dispatch = useDispatch();
+  const token = useSelector((state: RootState) => state.personalLogin).token || "";
+  const cartState = useSelector((state: RootState) => state.personalCart) || [];
+
+  let totalPrice: number = 0;
+
+  const fetchCarts = () => {
+
+    axios.get(`${API_BASE_URL}/home/cart/show`, {
+      headers: { 'x-auth-token': token }
+    }).then(async (rs) => {
+
+      const data = rs.data.carts
+      const cart: CartItem[] = []
+
+      data.map((i: any) => {
+        const product: ProductModel = {
+          id: i['product']['_id'],
+          name: i['product']['name'],
+          categories: i['product']['categories'],
+          photos: i['product']['photos'],
+          price: i['product']['price'],
+          purchases: i['product']['purchases'],
+          quantity: i['product']['quantity'],
+          star: i['product']['star'],
+          rates: i['product']['rates'],
+          sale: i['product']['sale'],
+          author: i['product']['author'],
+        }
+        const price = (product.price! - (product.price! * product.sale!)) * i['quantity']
+        totalPrice = totalPrice + price
+        cart.push({
+          product: product,
+          price: price,
+          quantity: i['quantity'],
+        })
+      })
+      await dispatch(fetchCart({ carts: cart, totalPrice }))
+    }).catch((err) => {
+      console.log("err" + err)
+    })
+  }
+
+  const fetchInfo = () => {
+    axios.get(`${API_BASE_URL}/home/auth/get-info`, {
+      headers: { 'x-auth-token': token }
+    }).then(async (rs) => {
+      dispatch(setInfo({
+        
+        name: rs.data.user.name || "",
+        email: rs.data.user.email || "",
+        phone: rs.data.user.phone || "",
+        photo: rs.data.user.photo || "",
+        address: rs.data.user.address || "",
+      }));
+      return rs.data
+    })
+  }
+
+  const logged = async () => {
+    try {
+      const token = await AsyncStorage.getItem('TOKEN');
+      if (token) {
+        const decodedToken: JwtPayload = jwtDecode(token!);
+
+        const tokenExpiration = decodedToken.exp ?? 0;
+        const currentTimestamp: number = Date.now();
+        if (tokenExpiration > currentTimestamp) {
+
+          await dispatch(login({ logged: true, token: token }));
+          return true
+        }
+      }
+      return false
+    } catch (error) {
+      console.log("====>" + error);
+    }
+  };
+
+  useEffect(() => {
+    logged().then((rs) => {
+      if (rs) {
+        fetchCarts();
+        fetchInfo()
+      }
+    });
+  }, [token]);
+
   return (
     <Tab.Navigator
       initialRouteName={SCREENS.HomeScreen}
@@ -110,6 +199,7 @@ const BottomTab = () => {
       <Tab.Screen
         name={SCREENS.AccountScreen}
         component={AccountScreen}
+
         options={{
           tabBarIcon: ({ focused }) => (
             <SyS_UserIcon
@@ -129,64 +219,13 @@ const BottomTab = () => {
 const Stack = createNativeStackNavigator();
 
 const Navigation = () => {
-  const dispatch = useDispatch();
-  const tokenState = useSelector((state: RootState) => state.personalLogin);
-
-
-  const fetchInfo = (token: string) => {
-    axios.get(`${API_BASE_URL}/home/auth/get-info`, {
-      headers:
-      {
-        'x-auth-token': token
-      }
-    }).then(async (rs) => {
-      await dispatch(setInfo({
-        name: rs.data.user.name || "",
-        email: rs.data.user.email || "",
-        phone: rs.data.user.phone || "",
-        photo: rs.data.user.photo || "",
-        address: rs.data.user.address || "",
-      }));
-      return rs.data
-    })
-  }
-
-  const initState = async () => {
-    try {
-      const token = await AsyncStorage.getItem('TOKEN');
-      if (token) {
-        const decodedToken: JwtPayload = jwtDecode(token!);
-
-        const tokenExpiration = decodedToken.exp ?? 0;
-        const currentTimestamp: number = Date.now();
-        if (tokenExpiration > currentTimestamp) {
-          await dispatch(setToken(token));
-          await fetchInfo(token);
-
-        }
-      }
-    } catch (error) {
-      console.log("====>" + error);
-    }
-  };
-
-  useEffect(() => {
-    initState()
-  }, []);
-
-
-
   return (
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{ headerShown: false }}
-        initialRouteName={tokenState.token ? "HomeTab" : SCREENS.LoginScreen}>
+        initialRouteName={"HomeTab"}>
         <Stack.Screen name={SCREENS.LoginScreen} component={LoginScreen} />
-        <Stack.Screen
-          options={{ headerShown: true }}
-          name={SCREENS.RegisterScreen}
-          component={RegisterScreen}
-        />
+        <Stack.Screen name={SCREENS.RegisterScreen} component={RegisterScreen} />
         <Stack.Screen name="HomeTab" component={BottomTab} />
         <Stack.Screen name={SCREENS.DetailScreen} component={DetailScreen} />
       </Stack.Navigator>

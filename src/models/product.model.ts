@@ -10,4 +10,5 @@ export interface ProductModel {
   rates?: string[];
   description?: string;
   categories?: string;
+  author?: string;
 }
