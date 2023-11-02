@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Alert, StyleSheet, TextInput, View } from 'react-native';
 import {
   SyS16_SearchIcon,
@@ -6,21 +6,38 @@ import {
   SyS_NotificationIcon,
 } from '../../../helpers/icons';
 import IconButtonComponent from '../../components/iconButtonComponent';
-import { COLORS, kDefaultPadding } from '../../../helpers/constants';
+import { COLORS, SCREENS, TEXT_TYPES, kDefaultPadding } from '../../../helpers/constants';
+import { LogoComponent } from '../../../views/components/logoComponent';
+import TextComponent from '../../../views/components/textComponent';
 
-const HeaderComponent = () => {
+const HeaderComponent = ({ navigation }: { navigation: any }) => {
+
+  const [keyword, setKeyword] = useState("")
+
   return (
     <View style={styles.body}>
-      <View style={styles.inputForm}>
+      {/* <View style={styles.inputForm}>
         <SyS16_SearchIcon width={18} height={18} />
         <TextInput
           returnKeyType="search"
           verticalAlign="bottom"
           style={[styles.textInput]}
           placeholder="Search Product"
-          onSubmitEditing={() => Alert.alert('You pressed the action button.')}
+          onSubmitEditing={() => keyword&& navigation.navigate(SCREENS.ExploreScreen, { keyword: keyword })}
           placeholderTextColor={COLORS.textPrimaryColor}
+          onChangeText={text => setKeyword(text)}
         />
+      </View> */}
+      <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+        <LogoComponent size={35} />
+        <TextComponent data={{
+          type: TEXT_TYPES.heading4,
+          text: "Lafyuu E-commerce",
+          style: {
+            color: COLORS.primaryColor,
+            marginLeft: 8
+          }
+        }} />
       </View>
       <View style={styles.iconBtn}>
         <IconButtonComponent icon={

@@ -128,7 +128,8 @@ const DetailScreen = ({ navigation }: { navigation: any }) => {
                     </View>
                     <View style={styles.price}>
                         <TextComponent data={{
-                            type: TEXT_TYPES.heading3, text: `$ ${(product?.price! - (product?.sale! * product?.price!)).toFixed(0)}`,
+                            type: TEXT_TYPES.heading3,
+                            text: `$ ${((product?.price! - (product?.sale! * product?.price!))||0).toFixed(0)}`,
                             style: {
                                 color: COLORS.primaryColor,
                                 marginRight: 8
@@ -142,12 +143,12 @@ const DetailScreen = ({ navigation }: { navigation: any }) => {
                                     textDecorationLine: 'line-through',
                                     marginRight: 8
                                 },
-                                text: `${product?.price!}` + ' đ'
+                                text: `${(product?.price!) || 0}` + ' đ'
                             }} />
                         <TextComponent
                             data={{
                                 type: TEXT_TYPES.heading5,
-                                text: `${product?.sale! * 100}% Off`,
+                                text: `${(product?.sale! * 100) || 0}% Off`,
                                 style: { color: COLORS.dangerColor }
                             }} />
                     </View>

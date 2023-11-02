@@ -87,7 +87,7 @@ const BottomTab = () => {
       headers: { 'x-auth-token': token }
     }).then(async (rs) => {
       dispatch(setInfo({
-        
+
         name: rs.data.user.name || "",
         email: rs.data.user.email || "",
         phone: rs.data.user.phone || "",
@@ -95,6 +95,8 @@ const BottomTab = () => {
         address: rs.data.user.address || "",
       }));
       return rs.data
+    }).catch(err => {
+      console.log(err)
     })
   }
 

@@ -40,10 +40,6 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
   const [saleProducts, setSaleProducts] = useState<ProductModel[]>([]);
   const [recommendProducts, setRecommendProducts] = useState<ProductModel[]>([]);
 
-  const dispatch = useDispatch()
-
-  const tokenState = useSelector((state: RootState) => state.personalLogin);
-
 
   const fetchNewProduct = () => {
     axios.get(`${API_BASE_URL}/home/index/new-products`).then((rs) => {
@@ -56,6 +52,8 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
         star: data.star
       }));
       setNewProducts(products);
+    }).catch(err => {
+      console.log(err)
     })
   }
 
@@ -70,6 +68,8 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
         star: data.star
       }));
       setSaleProducts(products);
+    }).catch(err => {
+      console.log(err)
     })
   }
 
@@ -84,6 +84,8 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
         star: data.star
       }));
       setRecommendProducts(products);
+    }).catch(err => {
+      console.log(err)
     })
   }
 
@@ -98,7 +100,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView overScrollMode="never" showsVerticalScrollIndicator={false}>
-        <HeaderComponent />
+        <HeaderComponent navigation={navigation} />
         <View style={styles.body}>
           <View style={styles.element}>
             <BannerComponent data={{ title: "Super Flash Sale 50% Off", time: "12:00:10" }} />

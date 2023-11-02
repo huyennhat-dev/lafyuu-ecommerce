@@ -22,6 +22,7 @@ import { login } from '../../stores/reducers/loginReducer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 // import { RootState } from '../../stores/configureStore';
 import { API_BASE_URL } from '../../configs';
+import randomCatAvatar from '../../models/user.model';
 
 const RegisterScreen = ({ navigation }: { navigation: any }) => {
   const dispatch = useDispatch();
@@ -33,7 +34,7 @@ const RegisterScreen = ({ navigation }: { navigation: any }) => {
   const handleRegister = async () => {
     try {
       axios.post(`${API_BASE_URL}/home/auth/register`, {
-        name, email, password
+        name, email, password, photo: randomCatAvatar()
       }).then(async (res) => {
         console.log('success')
         const data = res.data

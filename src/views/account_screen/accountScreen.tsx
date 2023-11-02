@@ -13,7 +13,7 @@ const AccountScreen = () => {
         <View>
           <Text>{state.email}</Text>
           <Text>{state.name}</Text>
-          <Text>{state.phone}</Text>
+          <Text>{state.photo}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
