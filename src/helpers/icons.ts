@@ -23,6 +23,15 @@ import Pro_DressIcon from '../../assets/icons/product/24px/Dress.svg';
 import Pro_WomanBagIcon from '../../assets/icons/product/24px/woman-bag.svg';
 import Pro_WomanShoeIcon from '../../assets/icons/product/24px/woman-shoes.svg';
 import Pro_WomanTShirtIcon from '../../assets/icons/product/24px/womantshirt.svg';
+import Profile from '../../assets/icons/profile/Profile Picture.svg';
+import Gender from '../../assets/icons/profile/Group.svg';
+import Right from '../../assets/icons/profile/Right.svg';
+import Birthday from '../../assets/icons/profile/Birthday.svg';
+import Email from '../../assets/icons/profile/Email.svg';
+import Phone from '../../assets/icons/profile/Phone.svg';
+import Change from '../../assets/icons/profile/ChangePass.svg';
+import Offer from '../../assets/icons/profile/Offer.svg';
+
 
 export {
   Pro_BikiniIcon,
@@ -38,6 +47,14 @@ export {
   Pro_WomanBagIcon,
   Pro_WomanShoeIcon,
   Pro_WomanTShirtIcon,
+  Profile,
+  Gender,
+  Right,
+  Birthday,
+  Email,
+  Phone,
+  Change,
+  Offer
 };
 
 import SyS16_MinusIcon from '../../assets/icons/system/16px/Minus.svg';
