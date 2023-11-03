@@ -207,20 +207,15 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
                 borderRadius={5}
                 resizeMode="cover"
                 style={{ width: '100%', height: '100%' }}
-                source={require('../../../assets/images/IMG_1.png')}>
+                source={require('../../../assets/images/IMG_1.jpg')}>
                 <View style={styles.bannerContent}>
                   <TextComponent
                     data={{
                       type: TEXT_TYPES.heading2,
-                      text: "Recommended Product",
+                      text: "Special Offer 25% OFF",
                       style: { color: COLORS.whiteColor }
                     }} />
-                  <TextComponent
-                    data={{
-                      type: TEXT_TYPES.normalTextR,
-                      text: "We recommend the best for you",
-                      style: { color: COLORS.whiteColor }
-                    }} />
+                  
                 </View>
               </ImageBackground>
             </View>
