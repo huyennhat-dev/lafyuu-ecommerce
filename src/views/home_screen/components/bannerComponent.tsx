@@ -67,7 +67,7 @@ const BannerComponent = ({ data }: { data: { title: string, time: string } }) =>
       <ImageBackground
         borderRadius={5}
         style={styles.image}
-        source={require('../../../../assets/images/IMG_2.png')}
+        source={require('../../../../assets/images/IMG_2.jpg')}
         resizeMode="cover">
         {hours == 0 && minutes == 0 && seconds == 0 ? null : (
           <View style={styles.content}>
