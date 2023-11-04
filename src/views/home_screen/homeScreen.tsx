@@ -25,15 +25,15 @@ import SaleProductItem from './components/saleProductItem';
 import ProductItem from '../components/productItem';
 
 import { ProductModel } from '../../models/product.model';
-import { apiData } from '../../apis/data';
 import { API_BASE_URL } from '../../configs';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../stores/configureStore';
-import { fetchCart } from '../../stores/reducers/cartReducer';
-
+import Toast from 'react-native-toast-message';
 
 const HomeScreen = ({ navigation }: { navigation: any }) => {
+  const logged = useSelector((state: RootState) => state.personalLogin).logged;
+  const name = useSelector((state: RootState) => state.personalInfo).name;
 
 
   const [newProducts, setNewProducts] = useState<ProductModel[]>([]);
@@ -93,7 +93,15 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
     fetchNewProduct()
     fetchSaleProduct()
     fetchRecommendProduct()
-  }, [])
+    if ( name) {
+      Toast.show({
+        type: 'success',
+        text1: `Hello ${name}`,
+        text2: 'Hope you have a nice day 👋',
+        topOffset: 16
+      });
+    }
+  }, [ name])
 
 
 
@@ -208,14 +216,23 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
                 resizeMode="cover"
                 style={{ width: '100%', height: '100%' }}
                 source={require('../../../assets/images/IMG_1.jpg')}>
-                <View style={styles.bannerContent}>
-                  <TextComponent
-                    data={{
-                      type: TEXT_TYPES.heading2,
-                      text: "Special Offer 25% OFF",
-                      style: { color: COLORS.whiteColor }
-                    }} />
-                  
+                <View style={styles.bannerContainer}>
+                  <View style={styles.bannerBackground} />
+
+                  <View style={styles.bannerContent}>
+                    <TextComponent
+                      data={{
+                        type: TEXT_TYPES.heading2,
+                        text: "Special ",
+                        style: { color: COLORS.whiteColor }
+                      }} />
+                    <TextComponent
+                      data={{
+                        type: TEXT_TYPES.heading2,
+                        text: "Offer 25% OFF",
+                        style: { color: COLORS.whiteColor }
+                      }} />
+                  </View>
                 </View>
               </ImageBackground>
             </View>
@@ -260,11 +277,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: kDefaultPadding * 0.8,
     alignSelf: 'stretch',
   },
-  bannerContent: {
+  bannerContainer: {
     flex: 1,
     position: 'relative',
+  },
+  bannerBackground: {
+    flex: 1,
+    position: 'absolute',
+    left: 0,
+    bottom: 0,
+    right: 0,
+    top: 0,
+    backgroundColor: 'black',
+    opacity: 0.1
+  },
+  bannerContent: {
+    flex: 1,
+    left: 0,
+    bottom: 0,
+    right: 0,
+    top: 0,
+    position: 'absolute',
+    justifyContent: 'flex-end',
     paddingHorizontal: kDefaultPadding * 2.4,
-    paddingVertical: kDefaultPadding * 4.8,
+    paddingVertical: kDefaultPadding * 2.4,
   },
   recommend: {
     flexDirection: 'row',

@@ -58,7 +58,6 @@ const cartSlice = createSlice({
 
       if (existingCartItem) {
         existingCartItem.quantity += action.payload.quantity;
-
       } else {
         state.carts.push({
           product: action.payload.product,
@@ -93,9 +92,18 @@ const cartSlice = createSlice({
       }
       state.totalPrice = price;
     },
+    clearCart: state => {
+      (state.carts = []), (state.totalPrice = 0);
+    },
   },
 });
 
-export const {increaseAmount, decreaseAmount, fetchCart, addProductToCart,delProductFromCart} =
-  cartSlice.actions;
+export const {
+  increaseAmount,
+  decreaseAmount,
+  fetchCart,
+  addProductToCart,
+  delProductFromCart,
+  clearCart
+} = cartSlice.actions;
 export default cartSlice.reducer;

@@ -1,97 +1,68 @@
-import React from 'react';
-import {Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View} from 'react-native';
-import IconButtonComponent from '../components/iconButtonComponent';
-import { Offer, SyS_LeftIcon } from '../../helpers/icons';
+import React, { useState, useEffect } from 'react';
+import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+
 import { COLORS, TEXT_TYPES, kDefaultPadding } from '../../helpers/constants';
 import TextComponent from '../components/textComponent';
+import { NotificationModel, notificationData } from '../../models/notification';
+import OfferItem from './components/offerItem';
 
-const OfferScreen = ({ navigation,title }: { navigation: any ,title:string}) => {
+const OfferScreen = ({ navigation }: { navigation: any }) => {
+
+  const [notifications, setNotifications] = useState<NotificationModel[]>([])
+
+  useEffect(() => {
+    const data = notificationData
+    setNotifications(data)
+  }, [])
+
   return (
-    <SafeAreaView>
-      <ScrollView>
-      <View style={styles.body}>
-            <Pressable onPress={() => navigation.goBack()} >
-                <IconButtonComponent icon={
-                    <SyS_LeftIcon width={25} height={25} stroke={COLORS.defaultColor} />
-                } />
-            </Pressable>
-            <View style={styles.textForm}>
-                <TextComponent data={{
-                    type: TEXT_TYPES.heading4,
-                    maxLine: 1,
-                    style: { color: COLORS.textSecondaryColor },
-                    text: "Notification"
-                }} />
-            </View>
-            
-      </View>
-
-          <View style={styles.profile1}>
-            <Offer style={styles.icon} />
-            <View>
-              <Text style={styles.textprofile}>The Best Title</Text>              
-              <Text style={{color: '#DCDEE3', marginTop:8}}>Culpa cillum consectetur labore nulla nulla magna irure. Id veniam culpa officia aute dolor amet deserunt ex proident commodo (List/Notification/Offer List)</Text>
-
-              <Text style={{color: '#223263', marginTop:8}}>April 30, 2014 1:01 PM </Text>
-            </View>        
-          </View>
-          <View style={styles.profile1}>
-            <Offer style={styles.icon} />
-            <View>
-              <Text style={styles.textprofile}>SUMMER OFFER 98% Cashback </Text>              
-              <Text style={{color: '#DCDEE3', marginTop:8}}>Culpa cillum consectetur labore nulla nulla magna irure. Id veniam culpa officia aute dolor (List/Notification/Offer List)</Text>
-              <Text style={{color: '#223263', marginTop:8}}>April 30, 2014 1:01 PM</Text>
-            </View>        
-          </View>
-          <View style={styles.profile1}>
-            <Offer style={styles.icon} />
-            <View>
-              <Text style={styles.textprofile}>Special Offer 25% OFF</Text>              
-              <Text style={{color: '#DCDEE3', marginTop:8}}>Culpa cillum consectetur labore nulla </Text>
-              <Text style={{color: '#223263', marginTop:8}}>April 30, 2014 1:01 PM</Text>
-            </View>        
-          </View>
+    <SafeAreaView style={styles.container}>
+      <ScrollView overScrollMode="never" showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <TextComponent data={{
+            type: TEXT_TYPES.heading4,
+            maxLine: 1,
+            style: { color: COLORS.textSecondaryColor },
+            text: "Notification"
+          }} />
+        </View>
+        <View style={styles.body}>
+          {notifications.map((item) => <OfferItem
+            key={item.id}
+            content={item.content}
+            time={item.time}
+            title={item.title} />)
+          }
+        </View>
 
       </ScrollView>
     </SafeAreaView>
   );
 };
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    position: 'relative',
+    backgroundColor: COLORS.whiteColor,
+  },
+
   body: {
-      flex: 1,
-      flexDirection: 'row',
-      alignSelf: 'stretch',
-      alignItems: 'center',
-      borderBottomWidth: 1,
-      justifyContent: 'flex-end',
-      padding: kDefaultPadding * 1.6,
-      borderColor: COLORS.borderColor,
-  },
-  textForm: {
-      flex: 1,
-marginLeft: 16
-  },
-  icon:{
-    //marginLeft: 16, 
-    //paddingTop: 15,
-    marginRight: 16,
-    paddingBottom: 15,
     flex: 1,
+    alignItems: 'center',
+    flexDirection: 'column',
+    padding: kDefaultPadding * 1.6,
+    marginBottom: 40
   },
-  profile1:{
+  header: {
     flex: 1,
+    borderBottomWidth: 1,
     flexDirection: 'row',
-    //alignItems: 'center',
-    padding: 16,
-  
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: kDefaultPadding * 1.6,
+    borderBottomColor: COLORS.borderColor,
   },
-  textprofile:{
-    fontSize: 18,
-    color: '#223263',
-    fontWeight: 'bold',  
-    flex: 1,
-    
-  },
-  
+
+
 });
 export default OfferScreen;

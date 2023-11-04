@@ -20,8 +20,15 @@ const infoSlice = createSlice({
       state.photo = action.payload.photo;
       state.address = action.payload.address;
     },
+    removeInfo: (state) => {
+      state.name = '';
+      state.email = '';
+      state.phone = '';
+      state.photo = '';
+      state.address = '';
+    },
   },
 });
 
-export const {setInfo} = infoSlice.actions;
+export const {setInfo,removeInfo} = infoSlice.actions;
 export default infoSlice.reducer;

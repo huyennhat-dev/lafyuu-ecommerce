@@ -18,8 +18,12 @@ const loginSlice = createSlice({
       state.logged = action.payload.logged;
       state.token = action.payload.token;
     },
+    logout: (state) => {
+      state.logged = false;
+      state.token = '';
+    },
   },
 });
 
-export const {login} = loginSlice.actions;
+export const {login,logout} = loginSlice.actions;
 export default loginSlice.reducer;

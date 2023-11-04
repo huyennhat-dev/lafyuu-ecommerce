@@ -39,6 +39,7 @@ const Tab = createBottomTabNavigator();
 
 const BottomTab = () => {
 
+
   const dispatch = useDispatch();
   const token = useSelector((state: RootState) => state.personalLogin).token || "";
   const cartState = useSelector((state: RootState) => state.personalCart) || [];
@@ -120,14 +121,19 @@ const BottomTab = () => {
     }
   };
 
+
+
   useEffect(() => {
     logged().then((rs) => {
       if (rs) {
         fetchCarts();
         fetchInfo()
+  
       }
     });
   }, [token]);
+
+
 
   return (
     <Tab.Navigator

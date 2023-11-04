@@ -11,15 +11,10 @@ import { API_BASE_URL } from '../../configs';
 import { ActivityIndicator } from 'react-native';
 
 
-// type RootStackParamList = {
-//   ExploreScreen: { keyword: string };
-// };
 
-// type ExploreScreenRouteProp = RouteProp<RootStackParamList, 'ExploreScreen'>;
+
 const ExploreScreen = ({ navigation }: { navigation: any }) => {
-  // const route = useRoute<ExploreScreenRouteProp>();
   const [products, setProducts] = useState<ProductModel[]>([]);
-  // const { keyword } = route.params || "";
   const [value, setValue] = useState("")
   const [page, setPage] = useState(1)
   const [loadingMore, setLoadingMore] = useState(false);
@@ -37,7 +32,6 @@ const ExploreScreen = ({ navigation }: { navigation: any }) => {
         sale: data.sale,
         star: data.star
       }));
-      console.log(data)
       setProducts(data);
       setLoading(false);
     }).catch(error => {
@@ -49,8 +43,8 @@ const ExploreScreen = ({ navigation }: { navigation: any }) => {
 
     if (
       layoutMeasurement.height + contentOffset.y >= contentSize.height - 20 &&
-      !loadingMore 
-      
+      !loadingMore
+
     ) {
       setLoadingMore(true);
       loadMoreData();
@@ -94,7 +88,7 @@ const ExploreScreen = ({ navigation }: { navigation: any }) => {
               returnKeyType="search"
               verticalAlign="bottom"
               style={[styles.headerTextInput]}
-              placeholder="Search Product"
+              placeholder="Enter keyword"
               onSubmitEditing={searchProduct}
               placeholderTextColor={COLORS.textPrimaryColor}
               onChangeText={text => setValue(text)}

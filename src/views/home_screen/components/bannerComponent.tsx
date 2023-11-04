@@ -70,19 +70,22 @@ const BannerComponent = ({ data }: { data: { title: string, time: string } }) =>
         source={require('../../../../assets/images/IMG_2.jpg')}
         resizeMode="cover">
         {hours == 0 && minutes == 0 && seconds == 0 ? null : (
-          <View style={styles.content}>
-            <View style={{ maxWidth: ScreenWidth * 0.6 }}>
-              <TextComponent
-                data={{
-                  type: TEXT_TYPES.heading2,
-                  style: { color: COLORS.whiteColor },
-                  text: title
-                }} />
-            </View>
-            <View style={styles.promotion}>
-              <PeriodComponent value={String(hours).padStart(2, '0')} />
-              <PeriodComponent value={String(minutes).padStart(2, '0')} />
-              <PeriodComponent value={String(seconds).padStart(2, '0')} />
+          <View style={styles.contentBody}>
+            <View style={styles.blurBackground} />
+            <View style={styles.content}>
+              <View style={{ maxWidth: ScreenWidth * 0.6 }}>
+                <TextComponent
+                  data={{
+                    type: TEXT_TYPES.heading2,
+                    style: { color: COLORS.whiteColor },
+                    text: title
+                  }} />
+              </View>
+              <View style={styles.promotion}>
+                <PeriodComponent value={String(hours).padStart(2, '0')} />
+                <PeriodComponent value={String(minutes).padStart(2, '0')} />
+                <PeriodComponent value={String(seconds).padStart(2, '0')} />
+              </View>
             </View>
           </View>
         )}
@@ -102,9 +105,27 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  content: {
+  contentBody: {
     flex: 1,
     position: 'relative',
+  },
+  blurBackground: {
+    flex: 1,
+    position: 'absolute',
+    left: 0,
+    bottom: 0,
+    right: 0,
+    top: 0,
+    backgroundColor: 'black',
+    opacity: 0.1
+  },
+  content: {
+    position: 'absolute',
+    flex: 1,
+    left: 0,
+    bottom: 0,
+    right: 0,
+    top: 0,
     paddingHorizontal: kDefaultPadding * 2.4,
     paddingVertical: kDefaultPadding * 3.2,
   },

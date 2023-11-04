@@ -20,15 +20,8 @@ import { ProductModel } from '../../models/product.model';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../stores/configureStore';
 import { addProductToCart } from '../../stores/reducers/cartReducer';
-
-const images = [
-    'https://github.com/leecade/react-native-swiper/blob/master/examples/components/Swiper/img/1.jpg?raw=true',
-    'https://github.com/leecade/react-native-swiper/blob/master/examples/components/Swiper/img/2.jpg?raw=true',
-    'https://github.com/leecade/react-native-swiper/blob/master/examples/components/Swiper/img/3.jpg?raw=true',
-    'https://github.com/leecade/react-native-swiper/blob/master/examples/components/Swiper/img/4.jpg?raw=true'
-]
-
-
+import ReviewProduct from './components/reviewProduct';
+import Snackbar from 'react-native-snackbar';
 
 
 type RootStackParamList = {
@@ -60,15 +53,19 @@ const DetailScreen = ({ navigation }: { navigation: any }) => {
                     description: rs.data.product.description,
                     rates: rs.data.product.rates
                 }
+
                 setProduct(pro)
             })
         } catch (error) {
-
+            console.log(error)
         }
     }
-    useEffect(() => { fetchProductData() }, [])
+    useEffect(() => {
+        fetchProductData()
+    }, [])
 
     const addToCart = () => {
+
 
         if (!loginState.logged) {
             navigation.navigate(SCREENS.LoginScreen);
@@ -86,6 +83,12 @@ const DetailScreen = ({ navigation }: { navigation: any }) => {
             { headers: { 'x-auth-token': loginState.token } }
         )
             .then((rs) => {
+                Snackbar.show({
+                    text: 'Add to cart successfully',
+                    duration: 1500,
+                    backgroundColor: "rgba(51, 255, 51, 0.7)"
+
+                });
                 console.log('rs:', rs.data);
             })
             .catch((error) => {
@@ -99,7 +102,7 @@ const DetailScreen = ({ navigation }: { navigation: any }) => {
         <SafeAreaView style={styles.container}>
             <ScrollView overScrollMode="never" showsVerticalScrollIndicator={false}>
                 <DetailHeader navigation={navigation} title={product?.name!} />
-                <DetailSlider images={product?.photos! ?? ["https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg"]} />
+                <DetailSlider images={product?.photos! ?? []} />
                 <View style={styles.body}>
                     <View style={styles.title}>
                         <View style={{ flex: 1 }}>
@@ -129,7 +132,7 @@ const DetailScreen = ({ navigation }: { navigation: any }) => {
                     <View style={styles.price}>
                         <TextComponent data={{
                             type: TEXT_TYPES.heading3,
-                            text: `$ ${((product?.price! - (product?.sale! * product?.price!))||0).toFixed(0)}`,
+                            text: `$ ${((product?.price! - (product?.sale! * product?.price!)) || 0).toFixed(0)}`,
                             style: {
                                 color: COLORS.primaryColor,
                                 marginRight: 8
@@ -148,7 +151,7 @@ const DetailScreen = ({ navigation }: { navigation: any }) => {
                         <TextComponent
                             data={{
                                 type: TEXT_TYPES.heading5,
-                                text: `${(product?.sale! * 100) || 0}% Off`,
+                                text: `${((product?.sale! * 100) || 0).toFixed(0)}% Off`,
                                 style: { color: COLORS.dangerColor }
                             }} />
                     </View>
@@ -176,26 +179,7 @@ const DetailScreen = ({ navigation }: { navigation: any }) => {
                         />
                     </View>
 
-                    <View style={styles.reviewProduct}>
-                        <HeadingComponent data={{
-                            onPress: () => { },
-                            title: "Review Product",
-                            text: "See More"
-                        }} />
-                        {[1, 2, 3, 4, 5].map((item, index) => (
-                            <ReviewComponent key={index} props={{
-                                data:
-                                {
-                                    avatar: images[0],
-                                    id: item.toString(),
-                                    images: images,
-                                    star: 5,
-                                    username: "James Lawson",
-                                    content: "air max are always very comfortable fit, clean and just perfect in every way. just the box was too small and scrunched the sneakers up a little bit, not sure if the box was always this small but the 90s are and will always be one of my favorites."
-                                }
-                            }} />
-                        ))}
-                    </View>
+                    <ReviewProduct productId={product?.id ?? ""} />
 
                 </View>
             </ScrollView>

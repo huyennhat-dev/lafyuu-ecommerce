@@ -10,7 +10,7 @@ type reviewProps = {
 }
 
 const ReviewComponent = ({ props }: { props: reviewProps }) => {
-    const { avatar, id, images, star, username, content } = props.data
+    const { avatar, id, images, star, username, content, time } = props.data
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -32,16 +32,22 @@ const ReviewComponent = ({ props }: { props: reviewProps }) => {
                     type: TEXT_TYPES.normalTextR,
                 }} />
             </View>
-            <View>
+            <View style={{ flex: 1, marginBottom: 8 }}>
                 <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} overScrollMode="never" style={{ flex: 1, flexDirection: 'row' }}>
                     {images.map((item, index) => <Image
                         key={index}
                         borderRadius={5}
                         resizeMode='cover'
                         source={{ uri: item }}
-                        style={{ width: 72, height: 72, marginRight: 12 }}
+                        style={{ width: 50, height: 50, marginRight: 12 }}
                     />)}
                 </ScrollView>
+            </View>
+            <View>
+                <TextComponent data={{
+                    text: time,
+                    type: TEXT_TYPES.normalTextR,
+                }} />
             </View>
         </View>
     )
@@ -63,7 +69,7 @@ const styles = StyleSheet.create({
         marginRight: 10
     },
     content: {
-        marginBottom: 16
+        marginBottom: 8
     }
 })
 
