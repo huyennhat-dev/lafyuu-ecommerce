@@ -93,7 +93,11 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
     fetchNewProduct()
     fetchSaleProduct()
     fetchRecommendProduct()
-    if ( name) {
+
+  }, [])
+
+  useEffect(() => {
+    if (name) {
       Toast.show({
         type: 'success',
         text1: `Hello ${name}`,
@@ -101,7 +105,8 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
         topOffset: 16
       });
     }
-  }, [ name])
+  }, [name])
+
 
 
 

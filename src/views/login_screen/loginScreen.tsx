@@ -32,6 +32,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { API_BASE_URL } from '../../configs';
 import { login } from '../../stores/reducers/loginReducer';
 import jwtDecode, { JwtPayload } from 'jwt-decode';
+import Snackbar from 'react-native-snackbar';
 
 const size = Dimensions.get('screen');
 
@@ -42,6 +43,17 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
   const [password, setPassword] = useState('');
   const handleLogin = async () => {
     try {
+
+      if (!email && !password) {
+        Snackbar.show({
+          text: "Email or password is invalid",
+          backgroundColor: COLORS.dangerColor,
+          duration: 1500
+        })
+
+        return
+      }
+
       axios.post(`${API_BASE_URL}/home/auth/login`, {
         email, password
       }).then(async (res) => {
@@ -51,13 +63,24 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
           await AsyncStorage.setItem('TOKEN', data.token)
           await dispatch(login({ logged: true, token: data.token }));
 
+          Snackbar.show({
+            text: "Logged in successfully",
+            backgroundColor: COLORS.primaryColor,
+            duration: 1500
+          })
+
+
           navigation.reset({
             index: 0,
             routes: [{ name: 'HomeTab' }],
           });
         }
       }).catch((err) => {
-        console.log(err)
+        Snackbar.show({
+          text: "Email or password is incorrect",
+          backgroundColor: COLORS.yellowColor,
+          duration: 1500
+        })
       })
     } catch (error) {
     }

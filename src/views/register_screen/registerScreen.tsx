@@ -23,6 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // import { RootState } from '../../stores/configureStore';
 import { API_BASE_URL } from '../../configs';
 import randomCatAvatar from '../../models/user.model';
+import Snackbar from 'react-native-snackbar';
 
 const RegisterScreen = ({ navigation }: { navigation: any }) => {
   const dispatch = useDispatch();
@@ -33,6 +34,17 @@ const RegisterScreen = ({ navigation }: { navigation: any }) => {
 
   const handleRegister = async () => {
     try {
+
+      if (!email && !password) {
+        Snackbar.show({
+          text: "Email or password is invalid",
+          backgroundColor: COLORS.dangerColor,
+          duration: 1500
+        })
+
+        return
+      }
+
       axios.post(`${API_BASE_URL}/home/auth/register`, {
         name, email, password, photo: randomCatAvatar()
       }).then(async (res) => {
@@ -41,6 +53,14 @@ const RegisterScreen = ({ navigation }: { navigation: any }) => {
         if (data.success) {
           await AsyncStorage.setItem('TOKEN', data.token)
           await dispatch(login({ logged: true, token: data.token }));
+
+
+          Snackbar.show({
+            text: "Account registration successful",
+            backgroundColor: COLORS.primaryColor,
+            duration: 1500
+          })
+
 
           navigation.reset({
             index: 0,
@@ -51,6 +71,7 @@ const RegisterScreen = ({ navigation }: { navigation: any }) => {
         console.log(err)
       })
     } catch (error) {
+      console.log(error)
     }
   }
   return (
